@@ -1,5 +1,5 @@
 const axios = require('axios')
-const { CONSTANTS, ERRORS } = require('./config')
+const {CONSTANTS, ERRORS} = require('./config')
 
 const init = async (merchant_id) => {
   if (typeof merchant_id !== 'String') return
@@ -18,6 +18,7 @@ class NovinopayNode {
       this.#callback_method = callback_method
     }
   }
+
   static initCustomMethod(merchant_id, callback_url, callback_method) {
     //Callback URL validation
     const url = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/;
@@ -42,6 +43,7 @@ class NovinopayNode {
 
     return new NovinopayNode(merchant_id, callback_url, callback_method)
   }
+
   static init(merchant_id, callback_url) {
     return NovinopayNode.initCustomMethod(merchant_id, callback_url, null)
   }
@@ -76,36 +78,39 @@ class NovinopayNode {
     }
 
   }
-  async paymentVerification() {
+
+  async paymentVerification(verificationObject) {
+    let data = verificationObject.getVerificationJSON()
     let body = {
       merchant_id: "xxxxxxxxx-xxxxxxxxx-xxxxxxxxx",
-      amount: "1000",
-      authority: "812F739E41057BAC22331918CD5B41C1"
+      ...data
     }
-    axios
-      .post(CONSTANTS.VERIFICATION_URL, body)
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((err) => {
-        console.log(err)
-      });
+    try {
+      const res = await axios.post(CONSTANTS.VERIFICATION_URL, body);
+      return res.data
+    } catch (error) {
+      if (error.response) {
+        return error.response.data;
+      } else
+        throw new Error(ERRORS.REQUEST_FAILED)
+    }
+
   }
 
-  async paymentInquiry() {
-    let body = {
-      merchant_id: "xxxxxxxxx-xxxxxxxxx-xxxxxxxxx",
-      authority: "812F739E41057BAC22331918CD5B41C1"
-    }
-    axios
-      .post(CONSTANTS.INQUIRY_URL, body)
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((err) => {
-        console.log(err)
-      });
-  }
+  // async paymentInquiry() {
+  //   let body = {
+  //     merchant_id: "xxxxxxxxx-xxxxxxxxx-xxxxxxxxx",
+  //     authority: "812F739E41057BAC22331918CD5B41C1"
+  //   }
+  //   axios
+  //     .post(CONSTANTS.INQUIRY_URL, body)
+  //     .then((response) => {
+  //       console.log(response)
+  //     })
+  //     .catch((err) => {
+  //       console.log(err)
+  //     });
+  // }
 }
 
 class PaymentObject {
@@ -133,9 +138,11 @@ class PaymentObject {
   static basic(amount) {
     return PaymentObject.full(amount, null, null, null, null, null, null)
   }
+
   static default(amount, invoice_id, description, email, mobile) {
     return PaymentObject.full(amount, null, null, invoice_id, description, email, mobile)
   }
+
   static full(amount, callback_url, callback_method, invoice_id, description, email, mobile, card_pan) {
     const isNumber = /^[0-9]*$/;
     // Amount Validation
@@ -266,10 +273,58 @@ class PaymentObject {
   }
 }
 
+class VerificationObject {
+  amount = null;
+  authority = null;
+
+  constructor(amount, authority) {
+    this.amount = amount;
+    this.authority = authority;
+  }
+
+  static init(amount, authority) {
+    const isNumber = /^[0-9]*$/;
+    // Amount Validation
+    let innerAmmount = '';
+    if (typeof amount === 'number') {
+      innerAmmount = amount.toString()
+      if (amount < 10000 || amount > 500000000) {
+        throw new Error(ERRORS.AMOUNT_OUT_OF_RANGE)
+      }
+    } else if (typeof amount === 'string') {
+      innerAmmount = amount;
+    } else {
+      throw new Error(ERRORS.AMOUNT_NUMBER_ONLY);
+    }
+    if (!isNumber.test(innerAmmount)) {
+      throw new Error(ERRORS.AMOUNT_NUMBER_ONLY);
+    }
+    if (parseInt(innerAmmount) < 10000 || parseInt(innerAmmount) > 500000000) {
+      throw new Error(ERRORS.AMOUNT_OUT_OF_RANGE)
+    }
+
+    //Authority validation
+    if (typeof authority !== 'string') {
+      throw new Error(ERRORS.DESCRIPTION_WRONG_TYPE)
+    }
+
+    return new VerificationObject(amount, authority)
+
+  }
+
+  getVerificationJSON() {
+    let out = {}
+    out.amount = this.amount;
+    out.authority = this.authority
+    return out;
+  }
+
+}
+
 
 exports = {
-  paymentVerification,
-  paymentRequest,
-  paymentInquiry
+  NovinopayNode,
+  PaymentObject,
+  VerificationObject
 }
 console.log(axios)

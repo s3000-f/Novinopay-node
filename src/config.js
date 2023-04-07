@@ -24,7 +24,9 @@ exports = {
     CARD_WRONG_TYPE: 'Card Number must be a string',
     CARD_INVALID: 'Card Number is not valid',
     MERCHANT_ID_TYPE: 'Merchant ID must be a string',
-    REQUEST_FAILED: 'Failed to make request'
+    REQUEST_FAILED: 'Failed to make request',
+    // AUTHORITY_TOO_LONG: 'Authority must be 16 characters',
+    AUTHORITY_WRONG_TYPE: 'Authority must be a string',
 
   }
 }
