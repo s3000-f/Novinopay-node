@@ -1,6 +1,6 @@
 {
   "name": "novinopay-node",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Node.js interface for Novinopay",
   "main": "src/index.js",
   "scripts": {

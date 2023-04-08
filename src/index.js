@@ -327,4 +327,3 @@ module.exports = {
   PaymentObject,
   VerificationObject
 }
-console.log(axios)
