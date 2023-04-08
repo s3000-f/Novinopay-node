@@ -305,7 +305,7 @@ class VerificationObject {
 
     //Authority validation
     if (typeof authority !== 'string') {
-      throw new Error(ERRORS.DESCRIPTION_WRONG_TYPE)
+      throw new Error(ERRORS.AUTHORITY_WRONG_TYPE)
     }
 
     return new VerificationObject(amount, authority)
@@ -322,7 +322,7 @@ class VerificationObject {
 }
 
 
-exports = {
+module.exports = {
   NovinopayNode,
   PaymentObject,
   VerificationObject

@@ -1,4 +1,4 @@
-exports = {
+module.exports = {
   CONSTANTS: {
     REQUEST_URL: 'https://api.novinopay.com/payment/ipg/v2/request',
     VERIFICATION_URL: 'https://api.novinopay.com/payment/ipg/v2/verification',
