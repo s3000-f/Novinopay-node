@@ -82,7 +82,7 @@ class NovinopayNode {
   async paymentVerification(verificationObject) {
     let data = verificationObject.getVerificationJSON()
     let body = {
-      merchant_id: "xxxxxxxxx-xxxxxxxxx-xxxxxxxxx",
+      merchant_id: this.#merchant_id,
       ...data
     }
     try {
